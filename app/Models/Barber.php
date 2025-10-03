@@ -1,4 +1,5 @@
 <?php
+
 // app/Models/Barber.php
 namespace App\Models;
 
