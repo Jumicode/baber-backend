@@ -1,38 +1,56 @@
 <?php
-// app/Models/Barber.php
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Barber extends Model
+class User extends Authenticatable
 {
+    use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     * Los campos que pueden ser asignados masivamente.
+     */
     protected $fillable = [
-        'user_id',
-        'bio',
+        'name',
+        'email',
+        'password',
+        'phone_number', // Campo añadido en la migración
+        'photo_path',   // Campo añadido en la migración
+        'role',         // Campo añadido en la migración
     ];
 
-    // Relación: Un barbero pertenece a un usuario (acceso a name, email, phone)
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    /**
+     * The attributes that should be hidden for serialization.
+     * Campos que se ocultan al serializar el modelo.
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-    // Relación: Un barbero tiene muchas citas
+    /**
+     * The attributes that should be cast.
+     * Tipos de datos que deben ser casteados.
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // Relación definida previamente: Un usuario puede ser un barbero
+    public function barber()
+    {
+        return $this->hasOne(Barber::class);
+    }
+    
+    // Relación definida previamente: Un usuario (como cliente) puede tener muchas citas
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
-    }
-
-    // Relación: Un barbero tiene muchos horarios (uno para cada día)
-    public function schedules()
-    {
-        return $this->hasMany(BarberSchedule::class);
-    }
-
-    // Relación: Un barbero tiene muchos métodos de pago (relación muchos a muchos)
-    public function paymentMethods()
-    {
-        return $this->belongsToMany(PaymentMethod::class, 'barber_payment_methods')
-                    ->withPivot('details'); // Accede al campo JSON 'details' de la tabla pivote
     }
 }
