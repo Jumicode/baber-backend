@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\BarberController;
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -23,4 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Route::put('/services/{id}', [ServiceController::class, 'update']);
     //Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
+
+
+     Route::get('barbers/schedule', [BarberController::class, 'schedule']); // <-- RUTA DE DISPONIBILIDAD
 });
