@@ -34,6 +34,7 @@ class AppointmentController extends Controller
      * @OA\Response(response=422, description="Error de validación o slot no disponible")
      * )
      */
+
     public function store(Request $request)
     {
         // 1. OBTENER DATOS DE SERVICIO Y DURACIÓN
@@ -151,4 +152,61 @@ class AppointmentController extends Controller
             return response()->json(['message' => $errorMessage], $statusCode);
         }
     }
+
+   /**
+     * @OA\Get(
+     * path="/api/appointments/mine",
+     * summary="Obtener el historial de citas del cliente autenticado.",
+     * security={{"sanctum":{}}},
+     * @OA\Response(response=200, description="Lista de citas del cliente obtenida"),
+     * @OA\Response(response=401, description="No autenticado")
+     * )
+     *
+     * @OA\Get(
+     * path="/api/barber/appointments",
+     * summary="Obtener la lista de citas pendientes del barbero autenticado.",
+     * security={{"sanctum":{}}},
+     * @OA\Response(response=200, description="Lista de citas del barbero obtenida"),
+     * @OA\Response(response=403, description="Acceso denegado (No es barbero)")
+     * )
+     */
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        $query = Appointment::query();
+
+        // 1. Determinar el rol y aplicar el filtro
+        if ($request->route()->uri === 'api/appointments/mine') {
+            // Caso: Cliente (Obtener mis citas)
+            $query->where('user_id', $user->id);
+            $query->with(['service', 'barber.user']); // Cliente necesita ver quién es el barbero
+            
+        } elseif ($request->route()->uri === 'api/barber/appointments') {
+            // Caso: Barbero (Obtener mis citas)
+            if ($user->role !== 'barber' || !$user->barber) {
+                return response()->json(['message' => 'Acceso denegado. Solo barberos pueden acceder a esta ruta.'], 403);
+            }
+            
+            $query->where('barber_id', $user->barber->id);
+            $query->with(['service', 'client']); // Barbero necesita ver quién es el cliente
+            
+            // Los barberos generalmente quieren ver citas pendientes o confirmadas, ordenadas por tiempo
+            $query->whereIn('status', ['pending', 'confirmed'])
+                  ->orderBy('start_time', 'asc');
+
+        } else {
+            // Fallback (solo si el enrutamiento falla)
+            return response()->json(['message' => 'Ruta de citas no reconocida.'], 400);
+        }
+
+        // 2. Ejecutar la consulta
+        $appointments = $query->get();
+
+        // 3. Formatear y devolver la respuesta
+        return response()->json([
+            'message' => 'Lista de citas obtenida exitosamente.',
+            'appointments' => $appointments
+        ], 200);
+    }
+
 }

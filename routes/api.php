@@ -31,4 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('barbers/schedule', [BarberController::class, 'schedule']); // <-- RUTA DE DISPONIBILIDAD
      Route::post('appointments', [AppointmentController::class, 'store']); // <-- NUEVA RUTA DE CREACIÓN
 
+    Route::get('appointments/mine', [AppointmentController::class, 'index']);      // Para Clientes
+    Route::get('barber/appointments', [AppointmentController::class, 'index']);   // Para Barberos
+
 });
