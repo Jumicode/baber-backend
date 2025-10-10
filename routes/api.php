@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\BarberController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\PaymentController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -33,5 +34,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('appointments/mine', [AppointmentController::class, 'index']);      // Para Clientes
     Route::get('barber/appointments', [AppointmentController::class, 'index']);   // Para Barberos
+
+     // 💰 GESTIÓN DE PAGOS
+    Route::get('barbers/{barber_id}/payment-methods', [PaymentController::class, 'getBarberPaymentMethods']); // NUEVA RUTA
+    Route::post('appointments/{appointment_id}/payment', [PaymentController::class, 'uploadPaymentProof']);   // NUEVA RUTA
+    
 
 });
