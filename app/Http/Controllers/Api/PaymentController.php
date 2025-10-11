@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\Appointment;
 use Illuminate\Support\Facades\Storage; 
 use Illuminate\Http\Request;
 
@@ -104,7 +104,7 @@ class PaymentController extends Controller
         
         // 5. Devolver la respuesta
         return response()->json([
-            'message' => 'Comprobante de pago subido correctamente. La cita queda en espera de confirmación.',
+            'message' => 'Comprobante de pago subido correctamente. La cita queda en espera de confirmacion.',
             'appointment_id' => $appointment->id
         ], 200);
     }
