@@ -108,5 +108,60 @@ class PaymentController extends Controller
             'appointment_id' => $appointment->id
         ], 200);
     }
+
+ /**
+     * @OA\Post(
+     * path="/api/appointments/{appointment_id}/confirm-payment",
+     * summary="Confirma el pago de una cita y cambia su estado a 'confirmed'.",
+     * security={{"sanctum":{}}},
+     * @OA\Parameter(name="appointment_id", in="path", required=true, description="ID de la cita a confirmar", @OA\Schema(type="integer")),
+     * @OA\Response(response=200, description="Pago y cita confirmados exitosamente"),
+     * @OA\Response(response=403, description="Acceso denegado (Solo para barberos/admins)"),
+     * @OA\Response(response=404, description="Cita no encontrada")
+     * )
+     */
+    public function confirmPayment(Request $request, $appointmentId)
+    {
+        $user = $request->user();
+
+        // 1. Verificar Permisos (Autorización)
+        // Solo el barbero (asociado a la cita) o un admin pueden confirmar el pago.
+        if ($user->role !== 'barber' && $user->role !== 'admin') {
+            return response()->json(['message' => 'Acceso denegado. Se requiere ser barbero o administrador.'], 403);
+        }
+
+        // 2. Encontrar la Cita y verificar su estado
+        $appointment = Appointment::find($appointmentId);
+
+        if (!$appointment) {
+            return response()->json(['message' => 'Cita no encontrada.'], 404);
+        }
+
+        // 3. Verificación de propiedad (Solo si el rol es 'barber')
+        if ($user->role === 'barber' && $appointment->barber_id !== $user->barber->id) {
+             return response()->json(['message' => 'Acceso denegado. Esta cita no es de tu agenda.'], 403);
+        }
+
+        // 4. Verificar estados para evitar re-confirmaciones
+        if ($appointment->payment_status === 'confirmed') {
+            return response()->json(['message' => 'El pago ya estaba confirmado previamente.'], 409);
+        }
+
+        if (!$appointment->payment_proof_path) {
+            return response()->json(['message' => 'No se puede confirmar el pago sin un comprobante de pago subido.'], 422);
+        }
+
+        // 5. Actualizar los estados (CRÍTICO)
+        $appointment->update([
+            'status' => 'confirmed',        // Cita confirmada (slot asegurado)
+            'payment_status' => 'confirmed', // Pago verificado
+        ]);
+
+        // 6. Respuesta de éxito
+        return response()->json([
+            'message' => 'Pago y cita confirmados exitosamente.',
+            'appointment' => $appointment
+        ], 200);
+    }
 }
 
