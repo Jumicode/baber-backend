@@ -209,4 +209,60 @@ class AppointmentController extends Controller
         ], 200);
     }
 
+/**
+     * @OA\Delete(
+     * path="/api/appointments/{appointment_id}",
+     * summary="Cancela una cita por su ID.",
+     * description="Accesible por el cliente dueño de la cita, el barbero asociado, o un administrador.",
+     * security={{"sanctum":{}}},
+     * @OA\Parameter(name="appointment_id", in="path", required=true, description="ID de la cita a cancelar", @OA\Schema(type="integer")),
+     * @OA\Response(response=200, description="Cita cancelada exitosamente"),
+     * @OA\Response(response=403, description="Acceso denegado o no hay tiempo para cancelar"),
+     * @OA\Response(response=404, description="Cita no encontrada")
+     * )
+     */
+    public function destroy(Request $request, $appointmentId)
+    {
+        $user = $request->user();
+
+        $appointment = Appointment::find($appointmentId);
+
+        if (!$appointment) {
+            return response()->json(['message' => 'Cita no encontrada.'], 404);
+        }
+
+        // 1. Verificar Permisos (Autorización)
+        $isClientOwner = ($appointment->user_id === $user->id);
+        $isBarberOwner = ($user->role === 'barber' && $user->barber && $appointment->barber_id === $user->barber->id);
+        $isAdmin = ($user->role === 'admin');
+
+        if (!$isClientOwner && !$isBarberOwner && !$isAdmin) {
+            return response()->json(['message' => 'No tienes permiso para cancelar esta cita.'], 403);
+        }
+        
+        // 2. Regla de Negocio (Opcional, pero recomendado): No cancelar si es demasiado tarde.
+        // Aquí se puede implementar la lógica de "Cancelación con 2 horas de antelación"
+        // $cancellationDeadline = \Carbon\Carbon::parse($appointment->start_time)->subHours(2);
+
+        // if ($isClientOwner && \Carbon\Carbon::now()->gt($cancellationDeadline)) {
+        //    return response()->json(['message' => 'Las citas deben cancelarse con al menos 2 horas de anticipación.'], 403);
+        // }
+
+        // 3. Verificar estado actual
+        if ($appointment->status === 'canceled') {
+            return response()->json(['message' => 'La cita ya estaba cancelada.'], 409);
+        }
+
+        // 4. Cancelar la cita (Actualizar estado)
+        $appointment->update([
+            'status' => 'canceled',
+            // Opcional: Si el pago fue confirmado, aquí se podría iniciar un proceso de reembolso.
+            'payment_status' => ($appointment->payment_status === 'confirmed') ? 'refund_pending' : $appointment->payment_status,
+        ]);
+
+        return response()->json([
+            'message' => 'Cita cancelada exitosamente.',
+            'appointment_id' => $appointment->id
+        ], 200);
+    }
 }

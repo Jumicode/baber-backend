@@ -35,11 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('appointments/mine', [AppointmentController::class, 'index']);      // Para Clientes
     Route::get('barber/appointments', [AppointmentController::class, 'index']);   // Para Barberos
 
-     // 💰 GESTIÓN DE PAGOS
+     //  GESTIÓN DE PAGOS
     Route::get('barbers/{barber_id}/payment-methods', [PaymentController::class, 'getBarberPaymentMethods']); // NUEVA RUTA
     Route::post('appointments/{appointment_id}/payment', [PaymentController::class, 'uploadPaymentProof']);   // NUEVA RUTA
 
     Route::post('appointments/{appointment_id}/confirm-payment', [PaymentController::class, 'confirmPayment']); // NUEVA RUTA
     
-
+    Route::delete('appointments/{appointment_id}', [AppointmentController::class, 'destroy']); // <-- RUTA DE CANCELACIÓN
+    
 });

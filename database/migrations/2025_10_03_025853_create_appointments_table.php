@@ -24,7 +24,7 @@ return new class extends Migration
     // Estado de la cita: pending, confirmed, completed, canceled
     $table->enum('status', ['pending', 'confirmed', 'completed', 'canceled'])->default('pending');
     // Estado del pago: pending, confirmed
-    $table->enum('payment_status', ['pending', 'confirmed'])->default('pending');
+    $table->enum('payment_status', ['pending', 'confirmed', 'refund_pending'])->default('pending');
     
     // Campos para la gestión de pagos
     $table->string('payment_proof_path')->nullable();
