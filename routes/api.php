@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\BarberController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\AdminController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -42,5 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('appointments/{appointment_id}/confirm-payment', [PaymentController::class, 'confirmPayment']); // NUEVA RUTA
     
     Route::delete('appointments/{appointment_id}', [AppointmentController::class, 'destroy']); // <-- RUTA DE CANCELACIÓN
-    
+   
+   Route::prefix('admin')->group(function () { 
+        Route::get('appointments', [AdminController::class, 'getAppointments']);
+    });
 });
