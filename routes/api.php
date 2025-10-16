@@ -46,5 +46,6 @@ Route::middleware('auth:sanctum')->group(function () {
    
    Route::prefix('admin')->group(function () { 
         Route::get('appointments', [AdminController::class, 'getAppointments']);
+        Route::get('dashboard-stats', [AdminController::class, 'getDashboardStats']); // <-- NUEVA RUTA
     });
 });
