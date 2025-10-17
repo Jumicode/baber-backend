@@ -1,0 +1,579 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Randell Barber",
+        "description": "Documentación de la API para la aplicación móvil Randell Barber. Incluye gestión de citas, pagos y administración.",
+        "contact": {
+            "email": "soporte@randellbarber.com"
+        },
+        "license": {
+            "name": "Licencia Privada"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/admin/appointments": {
+            "get": {
+                "summary": "Obtener lista consolidada de citas con filtros de fecha y estado. (Solo Admin/Barbero)",
+                "operationId": "d57a3744531af775602d9beb75f44061",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Fecha de inicio (YYYY-MM-DD)"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Fecha de fin (YYYY-MM-DD)"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filtrar por estado (confirmed, canceled, etc.)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de citas obtenida"
+                    },
+                    "403": {
+                        "description": "Acceso denegado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/dashboard-stats": {
+            "get": {
+                "summary": "Obtener estadísticas consolidadas del dashboard (Ingresos, conteo de estados). (Solo Admin/Barbero)",
+                "operationId": "5c51275e9e102398c786a96484150345",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Fecha de inicio (YYYY-MM-DD)"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Fecha de fin (YYYY-MM-DD)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estadísticas obtenidas"
+                    },
+                    "403": {
+                        "description": "Acceso denegado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/appointments": {
+            "post": {
+                "summary": "Agendar una nueva cita",
+                "operationId": "2b481df28ec53d2afb2ec7c9a3a77846",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "barber_id": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    },
+                                    "service_id": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    },
+                                    "start_time": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2025-10-15 10:00:00"
+                                    },
+                                    "is_domicilio": {
+                                        "type": "boolean",
+                                        "example": "true"
+                                    },
+                                    "address_street": {
+                                        "type": "string",
+                                        "example": "Av. Las Américas"
+                                    },
+                                    "address_city": {
+                                        "type": "string",
+                                        "example": "Puerto Ordaz"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Cita agendada exitosamente"
+                    },
+                    "422": {
+                        "description": "Error de validación o slot no disponible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/appointments/mine": {
+            "get": {
+                "summary": "Obtener el historial de citas del cliente autenticado.",
+                "operationId": "3d1bb5de287bef365bd9869bce2138cc",
+                "responses": {
+                    "200": {
+                        "description": "Lista de citas del cliente obtenida"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/barber/appointments": {
+            "get": {
+                "summary": "Obtener la lista de citas pendientes del barbero autenticado.",
+                "operationId": "b0ac10d77cf23b158bd3bb638acc1984",
+                "responses": {
+                    "200": {
+                        "description": "Lista de citas del barbero obtenida"
+                    },
+                    "403": {
+                        "description": "Acceso denegado (No es barbero)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/appointments/{appointment_id}": {
+            "delete": {
+                "summary": "Cancela una cita por su ID.",
+                "description": "Accesible por el cliente dueño de la cita, el barbero asociado, o un administrador.",
+                "operationId": "57e2a948e3eb1402035207afce1c14f4",
+                "parameters": [
+                    {
+                        "name": "appointment_id",
+                        "in": "path",
+                        "description": "ID de la cita a cancelar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cita cancelada exitosamente"
+                    },
+                    "403": {
+                        "description": "Acceso denegado o no hay tiempo para cancelar"
+                    },
+                    "404": {
+                        "description": "Cita no encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "summary": "Registro de un nuevo usuario (Cliente)",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Juan Pérez"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "juan.perez@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "584121234567"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario registrado exitosamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "summary": "Inicio de sesión de usuario",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "juan.perez@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inicio de sesión exitoso"
+                    },
+                    "401": {
+                        "description": "Credenciales incorrectas"
+                    }
+                }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "summary": "Obtener los datos del perfil del usuario autenticado",
+                "operationId": "94a5f4c5f5e5755cf43698cf9bc49e9d",
+                "responses": {
+                    "200": {
+                        "description": "Datos del perfil obtenidos"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "summary": "Cerrar sesión (revocar token)",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Sesión cerrada exitosamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/barbers/schedule": {
+            "get": {
+                "summary": "Obtener los horarios disponibles de los barberos para una fecha y servicio.",
+                "operationId": "6a265569014ac395ebe6b9074a55e8e3",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Fecha para la que se busca disponibilidad (YYYY-MM-DD)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "service_id",
+                        "in": "query",
+                        "description": "ID del servicio para determinar la duración del slot",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Disponibilidad de barberos obtenida"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/barbers/{barber_id}/payment-methods": {
+            "get": {
+                "summary": "Obtener los métodos de pago aceptados por un barbero específico.",
+                "operationId": "bb09b63bd20ac93a9945abd4fd6ac1a9",
+                "parameters": [
+                    {
+                        "name": "barber_id",
+                        "in": "path",
+                        "description": "ID del barbero",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Métodos de pago obtenidos"
+                    },
+                    "404": {
+                        "description": "Barbero no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/appointments/{appointment_id}/payment": {
+            "post": {
+                "summary": "Subir comprobante de pago para una cita.",
+                "operationId": "99243932c02b4c67a28cf049a7832048",
+                "parameters": [
+                    {
+                        "name": "appointment_id",
+                        "in": "path",
+                        "description": "ID de la cita",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "payment_method_id": {
+                                        "description": "ID del método de pago utilizado",
+                                        "type": "integer"
+                                    },
+                                    "payment_reference": {
+                                        "description": "Referencia o número de transacción",
+                                        "type": "string"
+                                    },
+                                    "payment_proof_file": {
+                                        "description": "Archivo de imagen del comprobante",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comprobante subido, esperando confirmación"
+                    },
+                    "422": {
+                        "description": "Error de validación o cita no válida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/appointments/{appointment_id}/confirm-payment": {
+            "post": {
+                "summary": "Confirma el pago de una cita y cambia su estado a 'confirmed'.",
+                "operationId": "1666928047f9aabda43aa4e91162aad4",
+                "parameters": [
+                    {
+                        "name": "appointment_id",
+                        "in": "path",
+                        "description": "ID de la cita a confirmar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pago y cita confirmados exitosamente"
+                    },
+                    "403": {
+                        "description": "Acceso denegado (Solo para barberos/admins)"
+                    },
+                    "404": {
+                        "description": "Cita no encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/services": {
+            "get": {
+                "summary": "Obtener el catálogo completo de servicios",
+                "operationId": "97de511018def32ca0ccbc800756c538",
+                "responses": {
+                    "200": {
+                        "description": "Lista de servicios obtenidos"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Appointment": {
+                "title": "Cita",
+                "description": "Detalles de una cita agendada en la barbería.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "description": "ID del cliente",
+                        "type": "integer"
+                    },
+                    "barber_id": {
+                        "description": "ID del barbero",
+                        "type": "integer"
+                    },
+                    "service_id": {
+                        "description": "ID del servicio",
+                        "type": "integer"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-15T10:00:00Z"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "confirmed",
+                            "canceled",
+                            "completed"
+                        ]
+                    },
+                    "payment_status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "confirmed",
+                            "refund_pending"
+                        ]
+                    },
+                    "is_domicilio": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "address_street": {
+                        "type": "string",
+                        "example": "Calle Falsa 123"
+                    },
+                    "address_city": {
+                        "type": "string",
+                        "example": "Ciudad Ejemplo"
+                    },
+                    "address_zip": {
+                        "type": "string",
+                        "example": "28013"
+                    },
+                    "address_details": {
+                        "type": "string",
+                        "example": "Piso 2, Puerta B"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

@@ -4,6 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
+/**
+ * @OA\Schema(
+ * schema="Appointment",
+ * title="Cita",
+ * description="Detalles de una cita agendada en la barbería.",
+ * @OA\Property(property="id", type="integer", example=1),
+ * @OA\Property(property="user_id", type="integer", description="ID del cliente"),
+ * @OA\Property(property="barber_id", type="integer", description="ID del barbero"),
+ * @OA\Property(property="service_id", type="integer", description="ID del servicio"),
+ * @OA\Property(property="start_time", type="string", format="date-time", example="2025-10-15T10:00:00Z"),
+ * @OA\Property(property="status", type="string", enum={"pending", "confirmed", "canceled", "completed"}),
+ * @OA\Property(property="payment_status", type="string", enum={"pending", "confirmed", "refund_pending"}),
+ * @OA\Property(property="is_domicilio", type="boolean", example=false),
+ * @OA\Property(property="address_street", type="string", example="Calle Falsa 123"),
+ * @OA\Property(property="address_city", type="string", example="Ciudad Ejemplo"),
+ * @OA\Property(property="address_zip", type="string", example="28013"),
+ * @OA\Property(property="address_details", type="string", example="Piso 2, Puerta B"),
+ * )
+ */
 class Appointment extends Model
 {
     protected $fillable = [
