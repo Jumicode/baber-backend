@@ -6,7 +6,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 
-use Filament\Tables\Actions\Action as TableAction;
+// Importaciones de Acciones
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+
 use Filament\Notifications\Notification;
 use App\Models\Appointment;
 
@@ -37,7 +43,7 @@ class AppointmentsTable
             ])
             ->actions([
                 // Acción de Confirmar Pago
-           TableAction::make('confirmPayment')
+                Action::make('confirmPayment') // <-- Usando Action directamente
                     ->label('Aprobar Pago')
                     ->button()
                     ->color('success')
@@ -54,14 +60,20 @@ class AppointmentsTable
                     }),
                 
                 // Acciones CRUD básicas
-                \Filament\Tables\Actions\EditAction::make(),
-                \Filament\Tables\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('start_time', 'desc');
     }
 }
+/*
+admin credencial
+
+'email' => 'admin@barber.com',
+'password' => bcrypt('password'),
+*/
