@@ -37,12 +37,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('barber/appointments', [AppointmentController::class, 'index']);   // Para Barberos
 
      //  GESTIÓN DE PAGOS
-    Route::get('barbers/{barber_id}/payment-methods', [PaymentController::class, 'getBarberPaymentMethods']); // NUEVA RUTA
-    Route::post('appointments/{appointment_id}/payment', [PaymentController::class, 'uploadPaymentProof']);   // NUEVA RUTA
+    Route::get('barbers/{barber_id}/payment-methods', [PaymentController::class, 'getBarberPaymentMethods']); 
+    Route::post('appointments/{appointment_id}/payment', [PaymentController::class, 'uploadPaymentProof']);   
 
-    Route::post('appointments/{appointment_id}/confirm-payment', [PaymentController::class, 'confirmPayment']); // NUEVA RUTA
+    Route::post('appointments/{appointment_id}/confirm-payment', [PaymentController::class, 'confirmPayment']); 
     
-    Route::delete('appointments/{appointment_id}', [AppointmentController::class, 'destroy']); // <-- RUTA DE CANCELACIÓN
+    Route::delete('appointments/{appointment_id}', [AppointmentController::class, 'destroy']);
    
    Route::prefix('admin')->group(function () { 
         Route::get('appointments', [AdminController::class, 'getAppointments']);

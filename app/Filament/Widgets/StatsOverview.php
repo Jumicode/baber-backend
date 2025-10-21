@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets; // O el namespace que Filament te haya dado
+namespace App\Filament\Widgets;
 
 use App\Models\Appointment;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
